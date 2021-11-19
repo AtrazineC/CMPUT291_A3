@@ -90,7 +90,7 @@ def Uninformed():
 
     print("got to tables made")
 
-    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 2")
+    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 50")
     codes = cursor.fetchall()
 
     print("codes selected")
@@ -145,7 +145,7 @@ def Self_optimized():
 
     cursor.execute(createView)
 
-    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 2")
+    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 50")
     codes = cursor.fetchall()
 
     results = []
@@ -185,7 +185,7 @@ def User_optimized():
 
     cursor.execute(createView)
     
-    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 2")
+    cursor.execute("SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 50")
     codes = cursor.fetchall()
 
     results = []
