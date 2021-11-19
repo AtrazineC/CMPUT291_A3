@@ -1,101 +1,166 @@
-#
-# lora lab 11 MA5.py
-# I declare that I did not collaborate with anyone in this micro-assignment. 
-# Besides the lab and class notes, I used the following resources: 
-# N/A
-# 
 import sqlite3
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 connection = None
 cursor = None
+uninformed = []
+self = []
+user = []
 
+def stacked_bar_graph(first_stack, second_stack, third_stack, width=0.5):
+    labels = ['SmallDB', 'MediumDB', 'LargeDB']
+
+    fig, ax = plt.subplots()
+    #Bar Data
+    ax.bar(labels, first_stack, width, label='Uninformed')
+    ax.bar(labels, second_stack, width, bottom = first_stack, label='Self-Optimized')
+    ax.bar(labels, third_stack, width, bottom = np.array(first_stack) + np.array(second_stack), label='User-Optimized')
+
+    ax.set_title('Q1 (Runtime in ms)')
+    ax.legend()
+
+    path = './{}A3chart.png'.format('Q1')
+    plt.savefig(path)
+    print('Chart saved to file {}'.format(path))
+    
+    plt.close()
+    return
 
 def connect(path):
     global connection, cursor
     connection = sqlite3.connect(path)
     cursor = connection.cursor()
+    cursor.execute(' PRAGMA foreign_keys=ON; ')
     connection.commit()
     return
 
-def uniformedOptimization():
-    cursor.execute('PRAGMA automatic_index = False')
+def uninformedOptimization():
+    cursor.execute('PRAGMA automatic_index = FALSE;')
 
-    cursor.execute('CREATE TABLE "CustomersNew" ("customer_id" TEXT,"customer_postal_code" INTEGER);')
-    cursor.execute('INSERT INTO CustomersNew SELECT customer_id, customer_postal_code FROM Customers;')
-    cursor.execute('ALTER TABLE Customers RENAME TO CustomersOriginal;')
-    cursor.execute('ALTER TABLE CustomersNew RENAME TO Customers;')
+    cursor.executescript('''CREATE TABLE CustomersNew (
+    customer_id TEXT,
+    customer_postal_code INTEGER
+    );
 
-    cursor.execute('CREATE TABLE "Order_items_new" ("order_item_id" INTEGER, "order_id" TEXT, "product_id" TEXT, "seller_id" TEXT);')
-    cursor.execute('INSERT INTO Order_items_new SELECT order_item_id, order_id, product_id, seller_id FROM Order_items')
-    cursor.execute('ALTER TABLE Order_items RENAME TO Order_items_original;')
-    cursor.execute('ALTER TABLE Order_items_new RENAME TO Order_items;')
+    INSERT INTO CustomersNew SELECT customer_id, customer_postal_code FROM Customers;
 
+    ALTER TABLE Customers RENAME TO CustomersOriginal;
+    ALTER TABLE CustomersNew RENAME TO Customers;
     
-    cursor.execute('CREATE TABLE "OrdersNew" ("order_id" TEXT, "customer_id" TEXT);')
-    cursor.execute('INSERT INTO OrdersNew SELECT order_id, customer_id FROM Orders;')
-    cursor.execute('ALTER TABLE Orders RENAME TO OrdersOriginal;')
-    cursor.execute('ALTER TABLE OrdersNew RENAME TO Orders;')
+    CREATE TABLE SellersNew (
+        seller_id TEXT,
+        seller_postal_code INTEGER
+    );
 
-    cursor.execute('CREATE TABLE "SellersNew" ("seller_id" TEXT, "seller_postal_code" INTEGER);')
-    cursor.execute('INSERT INTO SellersNew SELECT seller_id, seller_postal_code FROM Sellers;')
-    cursor.execute('ALTER TABLE Sellers RENAME TO SellersOriginal;')
-    cursor.execute('ALTER TABLE SellersNew RENAME TO Sellers;')
+    INSERT INTO SellersNew SELECT seller_id, seller_postal_code FROM Sellers;
+
+    ALTER TABLE Sellers RENAME TO SellersOriginal;
+    ALTER TABLE SellersNew RENAME TO Sellers;
+
+    CREATE TABLE OrdersNew (
+        order_id TEXT,
+        customer_id TEXT
+    );
+
+    INSERT INTO OrdersNew SELECT order_id, customer_id FROM Orders;
+
+    ALTER TABLE Orders RENAME TO OrdersOriginal;
+    ALTER TABLE OrdersNew RENAME TO Orders;
+
+    CREATE TABLE Order_itemsNew (
+        order_id TEXT,
+        order_item_id INTEGER,
+        product_id TEXT,
+        seller_id TEXT
+    );
+
+    INSERT INTO Order_itemsNew SELECT order_id, order_item_id, product_id, seller_id FROM Order_items;
+
+    ALTER TABLE Order_items RENAME TO Order_items_original;
+    ALTER TABLE Order_itemsNew RENAME TO Order_items;  
+    ''')
 
 
 def selfOptimizedOptimization():
-    cursor.execute('DROP TABLE Customers;')
-    cursor.execute('ALTER TABLE CustomersOriginal RENAME TO Customers;')
-
-    cursor.execute('DROP TABLE Order_items;')
-    cursor.execute('ALTER TABLE Order_items_original RENAME TO Order_items;')
-    
-    cursor.execute('DROP TABLE Orders;')
-    cursor.execute('ALTER TABLE OrdersOriginal RENAME TO Orders;')
-
-    cursor.execute('DROP TABLE Sellers;')
-    cursor.execute('ALTER TABLE SellersOriginal RENAME TO Sellers;')
+    global cursor
     cursor.execute('PRAGMA automatic_index = True')
-    
-def query1():
-    cursor.execute('SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 1')
-    randomPostalCode=cursor.fetchall()[0][0]
-    cursor.execute('SELECT COUNT(*) FROM Customers C, Orders O WHERE C.customer_postal_code == :P AND C.customer_id == O.customer_id', {"P": randomPostalCode})
-    count = randomPostalCode=cursor.fetchall()[0][0]
 
-def executeQuery1():
+    cursor.executescript('''DROP TABLE Customers;
+    ALTER TABLE CustomersOriginal RENAME TO Customers;
+
+    DROP TABLE Order_items;
+    ALTER TABLE Order_items_original RENAME TO Order_items;
+
+    DROP TABLE Orders;
+    ALTER TABLE OrdersOriginal RENAME TO Orders;
+
+    DROP TABLE Sellers;
+    ALTER TABLE SellersOriginal RENAME TO Sellers
+    ''')
+
+def userOptimized():
+    cursor.execute('PRAGMA automatic_index = true;')
+    cursor.execute('CREATE INDEX cid_index ON Customers(customer_postal_code);')
+    cursor.execute('CREATE INDEX oid_index ON Orders(customer_id);')
+
+def query(randomPostalCode):
+    cursor.execute('SELECT COUNT(*) FROM Customers C, Orders O WHERE C.customer_postal_code == :P AND C.customer_id == O.customer_id', {"P": randomPostalCode})
+
+def executeQuery():
     total = 0
     results = []
+    cursor.execute('SELECT customer_postal_code FROM Customers ORDER BY RANDOM() LIMIT 50')
+    randomPostalCodes = cursor.fetchall()
     for i in range(50):
         startTime = time.time()
-        query1()
+        query(randomPostalCodes[i][0])
         endTime = time.time()
         runTime = (endTime - startTime)*1000
         results.append(runTime)
         total += runTime
 
     return total/len(results)
-    
 
 def getData():
     global connection, cursor
-    uniformedOptimization()
-    query1Small1 = executeQuery1()
-    print(query1Small1)
+
+    uninformedOptimization()
+    querySmall1 = executeQuery()
+    uninformed.append(querySmall1)
+    print(querySmall1)
+
     selfOptimizedOptimization()
-    query1Small2 = executeQuery1()
-    print(query1Small2)
+    querySmall2 = executeQuery()
+    self.append(querySmall2)
+    print(querySmall2)
+
+    userOptimized()
+    querySmall3 = executeQuery()
+    user.append(querySmall3)
+    print(querySmall3)
+
+    cursor.execute('DROP INDEX oid_index')
+    cursor.execute('DROP INDEX cid_index')
     connection.commit()
 
 def main():
     global connection, cursor
-    path = "./A3Small.db"
-    connect(path)
-    print("Connection to the database open.")
-    getData();
-    connection.commit()
-    connection.close()
-    print("Connection to the database closed.")
+    paths = ["./A3Small.db", "./A3Medium.db", "./A3Large.db"]
+    # paths = ["./A3Small.db"]
+    
+    for i in range(len(paths)):
+        connect(paths[i])
+        print("Connection to the database open.")
+        getData()
+        # selfOptimizedOptimization()
+        connection.commit()
+        connection.close()
+        print("Connection to the database closed.")
+    
+    stacked_bar_graph(uninformed, self, user)
+
     return
 
 
