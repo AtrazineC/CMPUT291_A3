@@ -105,7 +105,7 @@ def userOptimized():
     cursor.execute('CREATE INDEX oid_index ON Orders(order_id);')
 
 def query(order_id):
-    cursor.execute('SELECT COUNT(DISTINCT s.seller_postal_code) FROM Orders o, Sellers s, Order_items i WHERE o.order_id = :id AND o.order_id = i.order_id AND s.seller_id = i.seller_id', {"id": order_id})
+    cursor.execute('SELECT COUNT(DISTINCT S.seller_postal_code) FROM Orders O, Sellers S, Order_items I WHERE O.order_id = :id AND O.order_id = I.order_id AND S.seller_id = I.seller_id', {"id": order_id})
 
 def executeQuery():
     total = 0
