@@ -34,7 +34,13 @@ WHERE oid IN (
 
 In the above query, randomPostalCode is the randomly selected postal code.
 
-TODO: Explain why we chose the indices we used.
+Query 2 used the following indices:
+
+CREATE INDEX oi_id_index ON Order_items(order_id,order_item_id,product_id,seller_id)
+CREATE INDEX oid_index ON Orders(order_id,customer_id)
+CREATE INDEX cid_index ON Customers(customer_id,customer_postal_code)
+
+These indices were chosen because these were the tables being referenced in the query (Order_items through the View OrderSize, and Orders & Customers through the internal SELECT statement). There are more columns indexed than are strictly needed, but they were left in regardless. At the very least, every column in Customers and Orders should be indexed, and only columns order_id and order_item_id needed to be indexed for table Order_items.
 
 ## Query 3:
 We executed the following SQL query:
@@ -46,9 +52,9 @@ WHERE order_id IN (
         AND O.order_id = order_id
         AND C.customer_postal_code = :postal
 )
-GROUP BY order_id;
+GROUP BY order_id
 
-TODO
+Query 3 used the same indices as Query 2, for the same reasoning (tables and columns being accessed to fulfill the queries).
 
 ## Query 4:
 We executed the following SQL query:
