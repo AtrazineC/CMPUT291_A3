@@ -39,6 +39,15 @@ TODO: Explain why we chose the indices we used.
 ## Query 3:
 We executed the following SQL query:
 
+SELECT COUNT(order_id), (COUNT(order_item_id)/COUNT(DISTINCT order_item_id)) as average FROM Order_items
+WHERE order_id IN (
+	SELECT O.order_id FROM Orders O, Customers C
+        WHERE O.customer_id = C.customer_id
+        AND O.order_id = order_id
+        AND C.customer_postal_code = :postal
+)
+GROUP BY order_id;
+
 TODO
 
 ## Query 4:
