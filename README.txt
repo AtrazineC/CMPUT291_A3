@@ -40,7 +40,7 @@ CREATE INDEX oi_id_index ON Order_items(order_id,order_item_id,product_id,seller
 CREATE INDEX oid_index ON Orders(order_id,customer_id)
 CREATE INDEX cid_index ON Customers(customer_id,customer_postal_code)
 
-These indices were chosen because these were the tables being referenced in the query (Order_items through the View OrderSize, and Orders & Customers through the internal SELECT statement). There are more columns indexed than are strictly needed, but they were left in regardless. At the very list, every column in Customers and Orders should be indexed, and only columns order_id and order_item_id needed to be indexed for table Order_items.
+These indices were chosen because these were the tables being referenced in the query (Order_items through the View OrderSize, and Orders & Customers through the internal SELECT statement). There are more columns indexed than are strictly needed, but they were left in regardless. At the very least, every column in Customers and Orders should be indexed, and only columns order_id and order_item_id needed to be indexed for table Order_items.
 
 ## Query 3:
 We executed the following SQL query:
