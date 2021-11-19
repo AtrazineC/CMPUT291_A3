@@ -9,13 +9,13 @@ uninformed = []
 self = []
 user = []
 
-def stacked_bar_graph(first_stack, second_stack, third_stack, width=0.5):
+def stacked_bar_graph(first_stack, second_stack, third_stack):
     labels = ['SmallDB', 'MediumDB', 'LargeDB']
-
+    width = 0.5
     fig, ax = plt.subplots()
     #Bar Data
-    ax.bar(labels, first_stack, width, label='Uninformed')
-    ax.bar(labels, second_stack, width, bottom = first_stack, label='Self-Optimized')
+    ax.bar(labels, first_stack, width, label = 'Uninformed')
+    ax.bar(labels, second_stack, width, bottom = first_stack, label = 'Self-Optimized')
     ax.bar(labels, third_stack, width, bottom = np.array(first_stack) + np.array(second_stack), label='User-Optimized')
 
     ax.set_title('Q1 (Runtime in ms)')
