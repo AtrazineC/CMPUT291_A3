@@ -106,7 +106,7 @@ def userOptimized():
     cursor.execute('CREATE INDEX oid_index ON Orders(customer_id);')
 
 def query(randomPostalCode):
-    cursor.execute('SELECT COUNT(*) FROM Customers C, Orders O WHERE C.customer_postal_code == :P AND C.customer_id == O.customer_id', {"P": randomPostalCode})
+    cursor.execute('SELECT COUNT(*) FROM Customers C, Orders O WHERE C.customer_postal_code = :P AND C.customer_id = O.customer_id', {"P": randomPostalCode})
 
 def executeQuery():
     total = 0

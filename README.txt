@@ -14,12 +14,12 @@ We executed the following SQL query:
 
 SELECT COUNT(*) 
 FROM Customers C, Orders O 
-WHERE C.customer_postal_code == randomPostalCode 
-AND C.customer_id == O.customer_id
+WHERE C.customer_postal_code = randomPostalCode 
+AND C.customer_id = O.customer_id
 
 In the above query, randomPostalCode is the randomly selected postal code.
 
-We assumed SQLite would create an index for Customers.customer_id since it is a primary key, but this would not help us with Customer.customer_postal_code = randomPostalCode. We chose to create an index on Customers.customer_postal_code and Orders.customer_id which allows us to avoid accessing Customers.
+SQLite auto-creates an index for Customers.customer_id since it is a primary key, but this would not help us with Customer.customer_id = Orders.order_id. We chose to create an index on Customers.customer_postal_code and Orders.customer_id which allows us to avoid accessing Orders.
 
 ## Query 2:
 We executed the following SQL query:
