@@ -6,7 +6,7 @@
 We declare that we did not collaborate with anyone outside our own group in this assignment.
 
 # Resources used:
-<List Here>
+- N/A
 
 # Indices Created:
 ## Query 1:
@@ -48,11 +48,13 @@ We executed the following SQL query:
 SELECT COUNT(order_id), (COUNT(order_item_id)/COUNT(DISTINCT order_item_id)) as average FROM Order_items
 WHERE order_id IN (
 	SELECT O.order_id FROM Orders O, Customers C
-        WHERE O.customer_id = C.customer_id
-        AND O.order_id = order_id
-        AND C.customer_postal_code = :postal
+    WHERE O.customer_id = C.customer_id
+    AND O.order_id = order_id
+    AND C.customer_postal_code = randomPostalCode
 )
 GROUP BY order_id
+
+In the above query, randomPostalCode is the randomly selected postal code.
 
 Query 3 used the same indices as Query 2, for the same reasoning (tables and columns being accessed to fulfill the queries).
 
@@ -67,4 +69,4 @@ AND S.seller_id = I.seller_id
 
 In the above query, randomOrderId is the randomly selected order id.
 
-TODO: Explain why we chose the indices we used.
+We did not add our own index for query 4 since upon using EXPLAIN QUERY PLAN, the plan already didn't didn't access any tables directly. This is likely because of the way the primary keys are set up in our database.

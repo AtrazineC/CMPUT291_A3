@@ -102,7 +102,6 @@ def selfOptimizedOptimization():
 
 def userOptimized():
     cursor.execute('PRAGMA automatic_index = true;')
-    cursor.execute('CREATE INDEX oid_index ON Orders(order_id);')
 
 def query(order_id):
     cursor.execute('SELECT COUNT(DISTINCT S.seller_postal_code) FROM Orders O, Sellers S, Order_items I WHERE O.order_id = :id AND O.order_id = I.order_id AND S.seller_id = I.seller_id', {"id": order_id})
@@ -140,7 +139,6 @@ def getData():
     user.append(querySmall3)
     print(querySmall3)
 
-    cursor.execute('DROP INDEX oid_index')
     connection.commit()
 
 def main():
