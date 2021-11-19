@@ -19,7 +19,7 @@ AND C.customer_id == O.customer_id
 
 In the above query, randomPostalCode is the randomly selected postal code.
 
-TODO: Explain why we chose the indices we used.
+We assumed SQLite would create an index for Customers.customer_id since it is a primary key, but this would not help us with Customer.customer_postal_code = randomPostalCode. We chose to create an index on Customers.customer_postal_code and Orders.customer_id which allows us to avoid accessing Cusomers.
 
 ## Query 2:
 We executed the following SQL query:

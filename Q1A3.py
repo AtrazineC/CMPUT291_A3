@@ -148,13 +148,11 @@ def getData():
 def main():
     global connection, cursor
     paths = ["./A3Small.db", "./A3Medium.db", "./A3Large.db"]
-    # paths = ["./A3Small.db"]
     
     for i in range(len(paths)):
         connect(paths[i])
         print("Connection to the database open.")
         getData()
-        # selfOptimizedOptimization()
         connection.commit()
         connection.close()
         print("Connection to the database closed.")
